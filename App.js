@@ -20,8 +20,9 @@ const TensorCamera = cameraWithTensors(CameraView);
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 // Constants
-const CAM_PREVIEW_WIDTH = SCREEN_WIDTH;
-const CAM_PREVIEW_HEIGHT = SCREEN_HEIGHT;
+const CAMERA_ASPECT_RATIO = 3 / 4;
+const CAM_PREVIEW_WIDTH = SCREEN_WIDTH * 0.9;
+const CAM_PREVIEW_HEIGHT = CAM_PREVIEW_WIDTH / CAMERA_ASPECT_RATIO;
 const TENSOR_WIDTH = 300;
 const TENSOR_HEIGHT = 300;
 const DETECTION_THRESHOLD = 0.3;
@@ -192,7 +193,7 @@ const ObjectDetector = React.memo(({ model, handleDetectedObjects }) => {
 
   return (
     <TensorCamera
-      style={[styles.camera, { transform: [{ scaleX: -1 }] }]}
+      style={styles.camera}
       type={'back'}
       cameraTextureHeight={CAM_PREVIEW_HEIGHT}
       cameraTextureWidth={CAM_PREVIEW_WIDTH}
@@ -319,10 +320,12 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      {isModelLoaded && (
-        <ObjectDetector model={model} handleDetectedObjects={handleDetectedObjects} />
-      )}
-      <BoundingBoxes detectedObjects={detectedObjects} />
+      <View style={styles.cameraContainer}>
+        {isModelLoaded && (
+          <ObjectDetector model={model} handleDetectedObjects={handleDetectedObjects} />
+        )}
+        <BoundingBoxes detectedObjects={detectedObjects} />
+      </View>
       {!isModelLoaded && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="large" color="#00FFFF" />
@@ -335,25 +338,34 @@ export default function App() {
       </View>
     </View>
   );
-} 
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'black',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cameraContainer: {
+    width: CAM_PREVIEW_WIDTH,
+    height: CAM_PREVIEW_HEIGHT,
+    overflow: 'hidden',
+    borderRadius: 20,
   },
   camera: {
     width: CAM_PREVIEW_WIDTH,
     height: CAM_PREVIEW_HEIGHT,
-    zIndex: -99,
+    transform: [{ scaleX: -1 }],
+    zIndex: -99
   },
   overlay: {
     position: 'absolute',
     top: 0,
     left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 99,
+    width: CAM_PREVIEW_WIDTH,
+    height: CAM_PREVIEW_HEIGHT,
+    zIndex: 99
   },
   boundingBox: {
     position: 'absolute',
